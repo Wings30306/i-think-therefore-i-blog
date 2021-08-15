@@ -80,14 +80,20 @@
         <div class="col-md-4 card mb-4  mt-3 ">
             <div class="card-body">
                 <!-- For later -->
-                {% if user.is_authenticated %}
-                <h3>Leave a comment:</h3>
-                <p>Posting as {{ user.username }}</p>
-                <form method="post" style="margin-top: 1.3rem;">
-                    {{ comment_form | crispy }}
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-signup btn-lg">Submit</button>
-                </form>
+                {% if commented %}
+                <div class="alert alert-success" role="alert">
+                    Your comment has been successfully posted and is now awaiting approval.
+                </div>
+                {% else %}
+                    {% if user.is_authenticated %}
+                    <h3>Leave a comment:</h3>
+                    <p>Posting as {{ user.username }}</p>
+                    <form method="post" style="margin-top: 1.3rem;">
+                        {{ comment_form | crispy }}
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-signup btn-lg">Submit</button>
+                    </form>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
