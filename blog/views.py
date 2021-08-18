@@ -1,5 +1,7 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, reverse
 from django.views import generic, View
+from django.http import HttpResponseRedirect
+from django.contrib import messages
 from .models import Post, Comment
 from .forms import CommentForm
 
@@ -30,6 +32,7 @@ class PostDetail(View):
                          "comment_form": CommentForm()
                       }
                       )
+
     def post(self, request, slug, *args, **kwargs):
         queryset = Post.objects.filter(status=1)
         post = get_object_or_404(queryset, slug=slug)
@@ -46,6 +49,7 @@ class PostDetail(View):
             comment = comment_form.save(commit=False)
             comment.post = post
             comment.save()
+            messages.add_message(request, messages.SUCCESS, 'Your comment has been sent!')
         else:
             comment_form = CommentForm()
 
@@ -59,3 +63,19 @@ class PostDetail(View):
                          "comment_form": CommentForm()
                       }
                       )
+
+
+class PostLike(View):
+    def post(self, request, slug):
+        post = get_object_or_404(Post, slug=slug)
+        """
+        If post.likes contains user: remove user
+        else: add user to post.likes
+        """
+        if post.likes.filter(id=self.request.user.id).exists():
+            # Remove user from post.likes (UNLIKE post)
+            post.likes.remove(request.user)
+        else:
+            # Add user to post.likes (LIKE post)
+            post.likes.add(request.user)
+        return HttpResponseRedirect(reverse('post_detail', args=[slug]))
